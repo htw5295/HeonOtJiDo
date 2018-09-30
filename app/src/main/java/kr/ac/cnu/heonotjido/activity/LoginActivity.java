@@ -21,10 +21,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import kr.ac.cnu.heonotjido.R;
+import kr.ac.cnu.heonotjido.gson.User;
 
 public class LoginActivity extends BaseActivity {
     static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
@@ -34,6 +37,7 @@ public class LoginActivity extends BaseActivity {
 
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient googleSignInClient;
+    private DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +54,17 @@ public class LoginActivity extends BaseActivity {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
         firebaseAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance().getReference();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-        if (currentUser != null) {
-            moveActivity();
+        if (firebaseUser != null) {
+            moveActivity(firebaseUser);
         }
     }
 
@@ -98,8 +103,8 @@ public class LoginActivity extends BaseActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = firebaseAuth.getCurrentUser();
-                            moveActivity();
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            moveActivity(firebaseUser);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -108,7 +113,10 @@ public class LoginActivity extends BaseActivity {
                 });
     }
 
-    private void moveActivity() {
+    private void moveActivity(FirebaseUser firebaseUser) {
+        User user = new User(firebaseUser.getDisplayName(), firebaseUser.getEmail());
+        database.child("user").child(firebaseUser.getUid()).setValue(user);
+
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
@@ -137,19 +145,11 @@ public class LoginActivity extends BaseActivity {
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    mMapLocationManager.enableMyLocation(true);
                 } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 }
