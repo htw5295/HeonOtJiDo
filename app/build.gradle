@@ -35,6 +35,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     //gson
     implementation 'com.google.code.gson:gson:2.8.5'
+
+    implementation 'com.naver.maps.open:naver-map-api:2.1.2@aar'
+    implementation 'net.sourceforge.jexcelapi:jxl:2.6.12'
+
     //firebase
     implementation 'com.google.firebase:firebase-core:16.0.3'
     implementation 'com.google.firebase:firebase-auth:16.0.3'
