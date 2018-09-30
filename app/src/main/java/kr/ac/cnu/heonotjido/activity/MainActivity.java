@@ -31,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 import jxl.Sheet;
 import jxl.Workbook;
@@ -56,14 +57,14 @@ public class MainActivity extends NMapActivity {
     private NMapOverlayManager mOverlayManager;
     private NMapLocationManager mMapLocationManager;
 
-    private NGeoPoint location;
-
     private String TAG = "TAG";
 
     ArrayList<String> addressList = new ArrayList<>();
 
     private RetrofitClient retrofitClient;
     private RetrofitService retrofitService;
+
+    int index = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +89,12 @@ public class MainActivity extends NMapActivity {
                         sb = new StringBuilder();
                         for(int col=0;col<colTotal;col++) {
                             String contents = sheet.getCell(col, row).getContents();
-                            sb.append(contents+" ");
+                            if(col==0){
+                                sb.append(contents+" ");
+                            }else{
+                                sb.append(contents);
+                            }
+
                             if(col==1){
                                 addressList.add(sb.toString());
                                 sb.setLength(0);
@@ -103,35 +109,7 @@ public class MainActivity extends NMapActivity {
             e.printStackTrace();
         }
 
-        geoCode();
-
-//        try {
-//            String addr = URLEncoder.encode(addressList.get(0), "UTF-8");
-//            String apiURL = "https://openapi.naver.com/v1/map/GeoCode?query=" + addr; //json
-//            //String apiURL = "https://openapi.naver.com/v1/map/geocode.xml?query=" + addr; // xml
-//            URL url = new URL(apiURL);
-//            HttpURLConnection con = (HttpURLConnection)url.openConnection();
-//            con.setRequestMethod("GET");
-//            con.setRequestProperty("X-Naver-Client-Id", clientId);
-//            con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-//            int responseCode = con.getResponseCode();
-//            BufferedReader br;
-//            if(responseCode==200) { // 정상 호출
-//                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-//            } else {  // 에러 발생
-//                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-//            }
-//            String inputLine;
-//            StringBuffer response = new StringBuffer();
-//            while ((inputLine = br.readLine()) != null) {
-//                response.append(inputLine);
-//            }
-//            br.close();
-//            System.out.println("왜 안 나와.......?");
-//            System.out.println(response.toString());
-//        } catch (Exception e) {
-//            System.out.println(e);
-//        }
+        geoCode(index);
 
         mMapView = new NMapView(this);
         setContentView(mMapView);
@@ -186,8 +164,14 @@ public class MainActivity extends NMapActivity {
 //        }
 //    };
 
-    private void geoCode() {
-        Call<GeoCode> call = retrofitService.geoCode(clientId, clientSecret, "불정로 6");
+    private void geoCode(int index) {
+        String address = addressList.get(index);
+        try {
+            address = URLEncoder.encode(addressList.get(index), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Call<GeoCode> call = retrofitService.geoCode(clientId, clientSecret, address);
         call.enqueue(new Callback<GeoCode>() {
             @Override
             public void onResponse(Call<GeoCode> call, Response<GeoCode> response) {
@@ -205,15 +189,20 @@ public class MainActivity extends NMapActivity {
         if (response.isSuccessful()) {
             GeoCode body = response.body();
             Log.d("test", body.result.items.get(0).point.x + ", " + body.result.items.get(0).point.y);
+        }else{
+            Log.d("test", "fail"+", "+response.message());
+        }
+        if(index++ != addressList.size()){
+            geoCode(index);
         }
     }
 
     private void setMarker() {
         int markerId = NMapPOIflagType.PIN;
 
-        // set POI data
         NMapPOIdata poiData = new NMapPOIdata(2, mMapViewerResourceProvider);
         poiData.beginPOIdata(2);
+
         poiData.addPOIitem(127.0630205, 37.5091300, "말풍선 클릭시 뿅", markerId, 0);
         poiData.addPOIitem(127.061, 37.51, "네이버맵 입니다", markerId, 0);
         poiData.endPOIdata();
