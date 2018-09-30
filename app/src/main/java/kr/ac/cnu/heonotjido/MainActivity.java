@@ -41,7 +41,7 @@ public class MainActivity extends NMapActivity {
     static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
 
     private NMapView mMapView;// 지도 화면 View
-    private final String CLIENT_ID = "NqHje4F6ZYIrnDVYwvko";// 애플리케이션 클라이언트 아이디 값
+    private final String CLIENT_ID = "IpBXd7ltF_UT1FBfuoal";// 애플리케이션 클라이언트 아이디 값
 
     private NMapController mMapController;
     private NMapViewerResourceProvider mMapViewerResourceProvider;
@@ -91,8 +91,8 @@ public class MainActivity extends NMapActivity {
             e.printStackTrace();
         }
 
-        String clientId = "NqHje4F6ZYIrnDVYwvko";//애플리케이션 클라이언트 아이디값";
-        String clientSecret = "ALDMLyHQQy";//애플리케이션 클라이언트 시크릿값";
+        String clientId = "IpBXd7ltF_UT1FBfuoal";//애플리케이션 클라이언트 아이디값";
+        String clientSecret = "8HI2LCVep8";//애플리케이션 클라이언트 시크릿값";
 
         try {
             String addr = URLEncoder.encode(addressList.get(0), "UTF-8");
