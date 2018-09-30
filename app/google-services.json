@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "699408069073",
+    "firebase_url": "https://heonotjido.firebaseio.com",
+    "project_id": "heonotjido",
+    "storage_bucket": "heonotjido.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:699408069073:android:7c7f56c4057f18d1",
+        "android_client_info": {
+          "package_name": "kr.ac.cnu.heonotjido"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "699408069073-u5dkn4gj3734cvsia08iu7mio5fl820h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.ac.cnu.heonotjido",
+            "certificate_hash": "941497021c944ffabea9b176bf03356138279891"
+          }
+        },
+        {
+          "client_id": "699408069073-3ha17dvofodlktvj805igpn95orc7jpk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE6MY4RPdFtTCa9iAcyj6wLmUMsrMUEWU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "699408069073-3ha17dvofodlktvj805igpn95orc7jpk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
