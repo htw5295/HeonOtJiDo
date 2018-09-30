@@ -1,4 +1,4 @@
-package kr.ac.cnu.heonotjido;
+package kr.ac.cnu.heonotjido.map;
 
 public class NMapPOIflagType {
     public static final int UNKNOWN = 0x0000;

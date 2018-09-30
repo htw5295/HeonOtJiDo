@@ -1,4 +1,4 @@
-package kr.ac.cnu.heonotjido;
+package kr.ac.cnu.heonotjido.activity;
 
 import android.Manifest;
 import android.app.Activity;
@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -34,14 +35,21 @@ import java.util.ArrayList;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import kr.ac.cnu.heonotjido.gson.GeoCode;
+import kr.ac.cnu.heonotjido.map.GpsInfo;
+import kr.ac.cnu.heonotjido.map.NMapPOIflagType;
+import kr.ac.cnu.heonotjido.map.NMapViewerResourceProvider;
+import kr.ac.cnu.heonotjido.retrofit.RetrofitClient;
+import kr.ac.cnu.heonotjido.retrofit.RetrofitService;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends NMapActivity {
-
-    Activity thisActivity = MainActivity.this;
-    static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
-
     private NMapView mMapView;// 지도 화면 View
-    private final String CLIENT_ID = "IpBXd7ltF_UT1FBfuoal";// 애플리케이션 클라이언트 아이디 값
+
+    private String clientId = "IpBXd7ltF_UT1FBfuoal";//애플리케이션 클라이언트 아이디값";
+    private String clientSecret = "8HI2LCVep8";//애플리케이션 클라이언트 시크릿값";
 
     private NMapController mMapController;
     private NMapViewerResourceProvider mMapViewerResourceProvider;
@@ -54,11 +62,15 @@ public class MainActivity extends NMapActivity {
 
     ArrayList<String> addressList = new ArrayList<>();
 
+    private RetrofitClient retrofitClient;
+    private RetrofitService retrofitService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestPermission();
+        retrofitClient = new RetrofitClient();
+        retrofitService = retrofitClient.getClient().create(RetrofitService.class);
 
         try {
             InputStream is = getBaseContext().getResources().getAssets().open("addressList.xls");
@@ -91,43 +103,42 @@ public class MainActivity extends NMapActivity {
             e.printStackTrace();
         }
 
-        String clientId = "IpBXd7ltF_UT1FBfuoal";//애플리케이션 클라이언트 아이디값";
-        String clientSecret = "8HI2LCVep8";//애플리케이션 클라이언트 시크릿값";
+        geoCode();
 
-        try {
-            String addr = URLEncoder.encode(addressList.get(0), "UTF-8");
-            String apiURL = "https://openapi.naver.com/v1/map/geocode?query=" + addr; //json
-            //String apiURL = "https://openapi.naver.com/v1/map/geocode.xml?query=" + addr; // xml
-            URL url = new URL(apiURL);
-            HttpURLConnection con = (HttpURLConnection)url.openConnection();
-            con.setRequestMethod("GET");
-            con.setRequestProperty("X-Naver-Client-Id", clientId);
-            con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
-            int responseCode = con.getResponseCode();
-            BufferedReader br;
-            if(responseCode==200) { // 정상 호출
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            } else {  // 에러 발생
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            }
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-            while ((inputLine = br.readLine()) != null) {
-                response.append(inputLine);
-            }
-            br.close();
-            System.out.println("왜 안 나와.......?");
-            System.out.println(response.toString());
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+//        try {
+//            String addr = URLEncoder.encode(addressList.get(0), "UTF-8");
+//            String apiURL = "https://openapi.naver.com/v1/map/GeoCode?query=" + addr; //json
+//            //String apiURL = "https://openapi.naver.com/v1/map/geocode.xml?query=" + addr; // xml
+//            URL url = new URL(apiURL);
+//            HttpURLConnection con = (HttpURLConnection)url.openConnection();
+//            con.setRequestMethod("GET");
+//            con.setRequestProperty("X-Naver-Client-Id", clientId);
+//            con.setRequestProperty("X-Naver-Client-Secret", clientSecret);
+//            int responseCode = con.getResponseCode();
+//            BufferedReader br;
+//            if(responseCode==200) { // 정상 호출
+//                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+//            } else {  // 에러 발생
+//                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+//            }
+//            String inputLine;
+//            StringBuffer response = new StringBuffer();
+//            while ((inputLine = br.readLine()) != null) {
+//                response.append(inputLine);
+//            }
+//            br.close();
+//            System.out.println("왜 안 나와.......?");
+//            System.out.println(response.toString());
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
 
         mMapView = new NMapView(this);
         setContentView(mMapView);
 
         mMapController = mMapView.getMapController();
 
-        mMapView.setClientId(CLIENT_ID); // 클라이언트 아이디 값 설정
+        mMapView.setClientId(clientId); // 클라이언트 아이디 값 설정
         mMapView.setClickable(true);
         mMapView.setEnabled(true);
         mMapView.setFocusable(true);
@@ -174,6 +185,28 @@ public class MainActivity extends NMapActivity {
 //
 //        }
 //    };
+
+    private void geoCode() {
+        Call<GeoCode> call = retrofitService.geoCode(clientId, clientSecret, "불정로 6");
+        call.enqueue(new Callback<GeoCode>() {
+            @Override
+            public void onResponse(Call<GeoCode> call, Response<GeoCode> response) {
+                GeoCodeCallBack(response);
+            }
+
+            @Override
+            public void onFailure(Call<GeoCode> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Network Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void GeoCodeCallBack(Response<GeoCode> response) {
+        if (response.isSuccessful()) {
+            GeoCode body = response.body();
+            Log.d("test", body.result.items.get(0).point.x + ", " + body.result.items.get(0).point.y);
+        }
+    }
 
     private void setMarker() {
         int markerId = NMapPOIflagType.PIN;
@@ -263,44 +296,4 @@ public class MainActivity extends NMapActivity {
             Log.e(TAG, "OnMapViewTouchEventListener onSingleTapUp : ");
         }
     };
-
-    //권한요청
-    private void requestPermission() {
-        if (ContextCompat.checkSelfPermission(thisActivity,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-            } else {
-                ActivityCompat.requestPermissions(thisActivity,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            }
-        }
-    }
-
-    //권한요청 후 처리
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    mMapLocationManager.enableMyLocation(true);
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-
 }

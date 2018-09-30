@@ -1,8 +1,10 @@
-package kr.ac.cnu.heonotjido;
+package kr.ac.cnu.heonotjido.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
+
+import kr.ac.cnu.heonotjido.R;
 
 public class BaseActivity extends AppCompatActivity {
 

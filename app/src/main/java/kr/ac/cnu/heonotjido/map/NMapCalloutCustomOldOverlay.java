@@ -1,4 +1,4 @@
-package kr.ac.cnu.heonotjido;
+package kr.ac.cnu.heonotjido.map;
 
 import android.annotation.SuppressLint;
 import android.graphics.Canvas;
