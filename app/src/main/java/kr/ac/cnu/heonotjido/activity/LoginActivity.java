@@ -1,7 +1,9 @@
 package kr.ac.cnu.heonotjido.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
@@ -39,6 +41,9 @@ public class LoginActivity extends BaseActivity {
     private GoogleSignInClient googleSignInClient;
     private DatabaseReference database;
 
+    private SharedPreferences user;
+    private SharedPreferences.Editor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +60,9 @@ public class LoginActivity extends BaseActivity {
         googleSignInClient = GoogleSignIn.getClient(this, gso);
         firebaseAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance().getReference();
+
+        user = getSharedPreferences("user", Context.MODE_PRIVATE);
+        editor = user.edit();
     }
 
     @Override
@@ -116,6 +124,10 @@ public class LoginActivity extends BaseActivity {
     private void moveActivity(FirebaseUser firebaseUser) {
         User user = new User(firebaseUser.getDisplayName(), firebaseUser.getEmail());
         database.child("user").child(firebaseUser.getUid()).setValue(user);
+
+        editor.putString("name", firebaseUser.getDisplayName());
+        editor.putString("email", firebaseUser.getEmail());
+        editor.commit();
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);

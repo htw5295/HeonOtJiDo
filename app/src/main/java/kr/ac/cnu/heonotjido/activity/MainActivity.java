@@ -1,15 +1,13 @@
 package kr.ac.cnu.heonotjido.activity;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 import com.nhn.android.maps.NMapActivity;
 import com.nhn.android.maps.NMapController;
@@ -22,19 +20,16 @@ import com.nhn.android.maps.overlay.NMapPOIitem;
 import com.nhn.android.mapviewer.overlay.NMapOverlayManager;
 import com.nhn.android.mapviewer.overlay.NMapPOIdataOverlay;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import kr.ac.cnu.heonotjido.R;
 import kr.ac.cnu.heonotjido.gson.GeoCode;
 import kr.ac.cnu.heonotjido.map.GpsInfo;
 import kr.ac.cnu.heonotjido.map.NMapPOIflagType;
@@ -46,6 +41,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends NMapActivity {
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+    @BindView(R.id.drawer)
+    View drawerView;
+    @BindView(R.id.custom_toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.main_nMapView)
+    NMapView nMapView;
+
     private NMapView mMapView;// 지도 화면 View
 
     private String clientId = "IpBXd7ltF_UT1FBfuoal";//애플리케이션 클라이언트 아이디값";
@@ -65,9 +69,15 @@ public class MainActivity extends NMapActivity {
     private RetrofitClient retrofitClient;
     private RetrofitService retrofitService;
 
+    ToolbarDrawerControl toolbarDrawerControl;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
+        toolbarDrawerControl = new ToolbarDrawerControl(this);
 
         retrofitClient = new RetrofitClient();
         retrofitService = retrofitClient.getClient().create(RetrofitService.class);
@@ -134,7 +144,6 @@ public class MainActivity extends NMapActivity {
 //        }
 
         mMapView = new NMapView(this);
-        setContentView(mMapView);
 
         mMapController = mMapView.getMapController();
 
