@@ -1,4 +1,4 @@
-package kr.ac.cnu.heonotjido;
+package kr.ac.cnu.heonotjido.map;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -17,6 +17,8 @@ import android.widget.ListView;
 import com.nhn.android.maps.NMapOverlayItem;
 import com.nhn.android.maps.overlay.NMapPOIitem;
 import com.nhn.android.mapviewer.overlay.NMapResourceProvider;
+
+import kr.ac.cnu.heonotjido.R;
 
 /**
  * Wrapper class to provider resources on map view.
